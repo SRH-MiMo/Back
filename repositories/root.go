@@ -5,16 +5,16 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewRepository(dns string, uri string) (*gorm.DB, *mongo.Client) {
+func NewRepository(dns string, uri string) (*gorm.DB, *mongo.Client, error) {
 	sql, err := NewMySQL(dns)
 	if err != nil {
-		panic(err)
+		return nil, nil, err
 	}
 
 	mmong, err := NewMongo(uri)
 	if err != nil {
-		panic(err)
+		return nil, nil, err
 	}
 
-	return sql, mmong
+	return sql, mmong, nil
 }
