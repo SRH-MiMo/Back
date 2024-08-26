@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"Back/controllers"
+	"Back/repositories"
 	"github.com/naoina/toml"
 	"os"
 )
@@ -26,7 +27,11 @@ func NewCmd(filePath string) {
 		panic(err)
 	}
 
-	err := controllers.NewContorllers(c.Server.Port)
+	sql, nsql, err := repositories.NewRepository(c.MySQL.Host, c.Mongo.URI)
+	if err != nil {
+		panic(err)
+	}
+	err = controllers.NewContorllers(c.Server.Port, sql, nsql)
 	if err != nil {
 		panic(err)
 	}
