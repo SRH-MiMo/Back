@@ -146,7 +146,7 @@ func AuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		var user entities.AuthDTO
+		var user entities.AuthDAO
 		if err := db.Where("uuid = ?", claims["uuid"]).First(&user).Error; err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 			c.Abort()

@@ -77,7 +77,7 @@ func Logout(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	authUser, ok := user.(entities.AuthDTO)
+	authUser, ok := user.(entities.AuthDAO)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user information"})
 		return
@@ -140,7 +140,7 @@ func UpdateNickname(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	authUser, ok := user.(entities.AuthDTO)
+	authUser, ok := user.(entities.AuthDAO)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user information"})
 		return
