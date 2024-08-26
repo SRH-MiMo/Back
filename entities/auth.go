@@ -32,3 +32,7 @@ type TokenPair struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
+
+type NicknameUpdate struct {
+	Nickname string `json:"nickname" binding:"required"`
+}

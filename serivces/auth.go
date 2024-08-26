@@ -69,3 +69,94 @@ func KakaoLogin(c *gin.Context, db *gorm.DB) {
 
 	c.JSON(http.StatusOK, response)
 }
+
+func Logout(c *gin.Context, db *gorm.DB) {
+	user, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found in context"})
+		return
+	}
+
+	authUser, ok := user.(entities.AuthDTO)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user information"})
+		return
+	}
+
+	// RefreshToken을 데이터베이스에서 제거
+	if err := db.Model(&authUser).Update("refresh_token", "").Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to logout"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
+}
+
+func DeleteAccount(c *gin.Context, db *gorm.DB) {
+	user, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found in context"})
+		return
+	}
+
+	authUser, ok := user.(entities.AuthDAO)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user information"})
+		return
+	}
+
+	// 트랜잭션 시작
+	tx := db.Begin()
+
+	// 사용자 관련 데이터 삭제
+	if err := tx.Delete(&authUser).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user account"})
+		return
+	}
+
+	// 여기에 사용자와 관련된 다른 데이터 삭제 로직 추가
+	// 예: 사용자의 게시글, 댓글 등 삭제
+	// if err := tx.Where("user_id = ?", authUser.UUID).Delete(&UserPosts{}).Error; err != nil {
+	//     tx.Rollback()
+	//     c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user data"})
+	//     return
+	// }
+
+	// 트랜잭션 커밋
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit transaction"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Account successfully deleted"})
+}
+
+func UpdateNickname(c *gin.Context, db *gorm.DB) {
+	user, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found in context"})
+		return
+	}
+
+	authUser, ok := user.(entities.AuthDTO)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user information"})
+		return
+	}
+
+	var nicknameUpdate entities.NicknameUpdate
+	if err := c.ShouldBindJSON(&nicknameUpdate); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 닉네임 업데이트
+	if err := db.Model(&authUser).Update("nickname", nicknameUpdate.Nickname).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update nickname"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Nickname successfully updated", "new_nickname": nicknameUpdate.Nickname})
+}
