@@ -18,11 +18,7 @@ func NewContorllers(port string) error {
 
 	v1 := r.Group("/api/v1")
 	{
-		v1.GET("", func(c *gin.Context) {
-			c.JSON(200, gin.H{
-				"message": "서버 이니셜라이징 성공!",
-			})
-		})
+
 	}
 
 	err := r.Run(port)
