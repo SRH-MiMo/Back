@@ -7,10 +7,11 @@ import (
 )
 
 type AuthDAO struct {
-	UUID     string `gorm:"primary_key"`
-	Nickname string
-	Age      string
-	Job      string
+	UUID         string `gorm:"primary_key"`
+	Nickname     string `gorm:"primary_key"`
+	Age          string
+	Job          string
+	RefreshToken string
 }
 
 type AuthDTO struct {

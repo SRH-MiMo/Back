@@ -20,7 +20,10 @@ func NewContorllers(port string, sql *gorm.DB, nsql *mongo.Client) error {
 
 	v1 := r.Group("/api/v1")
 	{
-		
+		auth := v1.Group("/auth")
+		{
+			NewAuthController(auth, sql, nsql)
+		}
 	}
 
 	err := r.Run(port)
